@@ -1,48 +1,20 @@
 import csv
 import json
-
-from .data_errors import (CompanyAlreadyExistsError,
-                          NoSuchSymbolError,
-                          WrongSectorError)
+from abc import ABC, abstractmethod
 
 
-def provider(file_extension, name):
-    if file_extension == '.csv':
-        return Sp500Csv(name + file_extension)
-    if file_extension == '.json':
-        return Sp500Json(name + file_extension)
-
-
-class FileDB:
-    def __init__(self, file_name):
-        self.file_name = file_name
-
+class FileDB(ABC):
+    @abstractmethod
     def get_file_information(self):
-        return ''
+        raise NotImplementedError
 
-    def check_symbol_uniqueness(self, symbol: str):
-        file = self.get_file_information()
-        if symbol.lower() in map(lambda dct: dct.get('Symbol').lower(), file):
-            raise CompanyAlreadyExistsError('This symbol of'
-                                            ' company already exists.')
+    @abstractmethod
+    def record_new_line(self, new_line):
+        raise NotImplementedError
 
-    def check_symbol_existence(self, symbol):
-        file = self.get_file_information()
-        if symbol.lower() not in map(lambda dct:
-                                     dct.get('Symbol').lower(), file):
-            raise NoSuchSymbolError('Company with this symbol is not exist.')
-
-    def check_name_uniqueness(self, name: str):
-        file = self.get_file_information()
-        if name.lower() in map(lambda dct: dct.get('Name').lower(), file):
-            raise CompanyAlreadyExistsError('This company '
-                                            'name already exists.')
-
-    def check_sector_existence(self, sector: str):
-        file = self.get_file_information()
-        if sector.lower() not in map(lambda dct:
-                                     dct.get('Sector').lower(), file):
-            raise WrongSectorError('This sector is not exist.')
+    @abstractmethod
+    def record_new_information(self, new_information):
+        raise NotImplementedError
 
 
 class Sp500Csv(FileDB):
