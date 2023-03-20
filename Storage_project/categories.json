@@ -1,0 +1,20 @@
+{
+  "Smartphone": [
+    "name",
+    "color",
+    "price"
+  ],
+  "TV": [
+    "screen",
+    "price",
+    "color",
+    "name"
+  ],
+  "car": [
+    "name",
+    "brand",
+    "engine capacity",
+    "color",
+    "price"
+  ]
+}

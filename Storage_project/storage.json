@@ -1,0 +1,47 @@
+{
+  "Goods": [
+    {
+      "category": "Smartphone",
+      "color": "red",
+      "created_at": "2023-01-01",
+      "id": 1,
+      "name": "Iphone 14 PRO",
+      "price": 1500,
+      "quantity": 1,
+      "updated_at": "2023-01-01"
+    },
+    {
+      "category": "TV",
+      "color": "black",
+      "created_at": "2023-03-17",
+      "id": 2,
+      "name": "TV53VC",
+      "price": "1200",
+      "quantity": 0,
+      "screen": "75",
+      "updated_at": "2023-03-17"
+    },
+    {
+      "category": "Smartphone",
+      "color": "lavanda",
+      "created_at": "2023-03-17",
+      "id": 3,
+      "name": "S23FE",
+      "price": "1500",
+      "quantity": 0,
+      "updated_at": "2023-03-17"
+    },
+    {
+      "brand": "volvo",
+      "category": "car",
+      "color": "red",
+      "created_at": "2023-03-19",
+      "engine capacity": "4.4",
+      "id": 4,
+      "name": "xc90",
+      "price": "62000",
+      "quantity": 2,
+      "updated_at": "2023-03-19"
+    }
+  ]
+}
