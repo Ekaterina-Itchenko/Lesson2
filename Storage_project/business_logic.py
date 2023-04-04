@@ -1,13 +1,22 @@
-from data_access import record_to_exel_sheets
+from data_access import (record_to_exel_sheets,
+                         CommonInfoDTO,
+                         CategoryStatisticDTO)
 from errors import (CategoryExistenceError,
                     InvalidCategoryError,
                     InvalidIdError)
 from datetime import date
+from typing import TYPE_CHECKING
+from DTO import StorageDTO, OrderDTO
+if TYPE_CHECKING:
+    from interfaces import StorageProto, CategoriesProto, OrdersProto
+    from data_access import OrderInfo
 
 
-def add_category(category: str, parameters: str, ct_connector):
-    for item in ct_connector.get_all_categories().keys():
-        if item.lower() == category.lower():
+def add_category(category: str,
+                 parameters: str,
+                 ct_connector: 'CategoriesProto') -> None:
+    for item in ct_connector.get_all_categories():
+        if item.category.lower() == category.lower():
             raise CategoryExistenceError("This category has already exists.")
     parameters_list = [element.strip().lower() for
                        element in parameters.split(',')]
@@ -18,91 +27,121 @@ def add_category(category: str, parameters: str, ct_connector):
     ct_connector.record_new_category(category, parameters_list)
 
 
-def get_parameters(category: str, ct_connector) -> list:
-    if category.lower() not in [item.lower()
+def get_parameters(category: str,
+                   ct_connector:
+                   'CategoriesProto') -> list[str] | None:
+    if category.lower() not in [item.category.lower()
                                 for item in
-                                ct_connector.get_all_categories().keys()]:
+                                ct_connector.get_all_categories()]:
         raise InvalidCategoryError("This category is not exist.")
-    return ct_connector.get_all_categories()[category]
+    for item in ct_connector.get_all_categories():
+        if category.lower() == item.category.lower():
+            return item.parameters
+    return None
 
 
-def add_new_goods(info: dict, amount_of_goods: str,
-                  category: str, st_connector):
+def add_new_goods(info: dict[str, str], amount_of_goods: str,
+                  category: str, st_connector: 'StorageProto') -> None:
     info['category'] = category
-    storage = st_connector.get_storage_info()
-    goods_list = storage['Goods']
+    goods_list = st_connector.get_storage_info()
     flag = True
     for product in goods_list:
-        if set(info.items()).issubset(set(product.items())):
-            product["quantity"] += int(amount_of_goods)
-            product["updated_at"] = str(date.today())
-            storage["Goods"] = goods_list
-            st_connector.record_with_new_info(storage)
+        products_set = set((("id", product.id),
+                            ("name", product.name),
+                            ("price", product.price),
+                            ("category", product.category)))
+        if set(info.items()).issubset(products_set):
+            product.quantity += int(amount_of_goods)
+            product.updated_at = str(date.today())
+            st_connector.record_with_new_info(goods_list)
             flag = False
+
     if flag:
-        info['quantity'] = int(amount_of_goods)
-        info["created_at"] = str(date.today())
-        info["updated_at"] = str(date.today())
-        info["id"] = len(goods_list) + 1
-        goods_list.append(info)
-        storage["Goods"] = goods_list
-        st_connector.record_with_new_info(storage)
+        add_param = {}
+        for key in info:
+            if key not in list(StorageDTO.__dict__['__annotations__'].keys()):
+                add_param[key] = info[key]
+
+        new_info = StorageDTO(category=category,
+                              quantity=int(amount_of_goods),
+                              created_at=str(date.today()),
+                              updated_at=str(date.today()),
+                              product_id=len(goods_list) + 1,
+                              name=info['name'],
+                              price=info["price"],
+                              add_param=add_param)
+
+        goods_list.append(new_info)
+        st_connector.record_with_new_info(goods_list)
 
 
-def get_info_of_goods(category, min_date, max_date,
-                      st_connector, ct_connector):
-    all_goods = st_connector.get_storage_info()['Goods']
+def get_info_of_goods(category: str,
+                      min_date: str,
+                      max_date: str,
+                      st_connector: 'StorageProto',
+                      ct_connector: 'CategoriesProto') -> None:
+    all_goods = st_connector.get_storage_info()
     if category.strip():
         if (category.lower() not in
-                [item.lower() for item in
-                 ct_connector.get_all_categories().keys()]):
+                [item.category.lower() for item in
+                 ct_connector.get_all_categories()]):
             raise InvalidCategoryError("This category is not exist.")
         result = []
         for product in all_goods:
-            if product['category'].lower() == category.lower():
+            if product.category.lower() == category.lower():
                 result.append(product)
         all_goods = result
     if min_date.strip():
         result = []
         for product in all_goods:
-            if (date.fromisoformat(product['created_at']) >=
+            if (date.fromisoformat(product.created_at) >=
                     date.fromisoformat(min_date.strip())):
                 result.append(product)
         all_goods = result
     if max_date.strip():
         result = []
         for product in all_goods:
-            if (date.fromisoformat(product['created_at']) <=
+            if (date.fromisoformat(product.created_at) <=
                     date.fromisoformat(max_date.strip())):
                 result.append(product)
         all_goods = result
     if all_goods:
-        print(*[f'id: {product["id"]} - {product["name"]}'
+        print(*[f'id: {product.id} - {product.name}'
                 for product in all_goods], sep='\n')
     else:
         print('No such goods.')
 
 
-def get_specific_product(product_id: str, st_connector):
-    all_goods = st_connector.get_storage_info()['Goods']
+def get_specific_product(product_id: str,
+                         st_connector: 'StorageProto') -> None:
+    all_goods = st_connector.get_storage_info()
     if int(product_id) > len(all_goods):
         raise InvalidIdError('Incorrect id.')
     for product in all_goods:
-        if product.get('id') == int(product_id):
-            if int(product.get('quantity')) > 0:
-                print(*[f'{key}: {value}' for key, value in product.items()],
+        if product.product_id == int(product_id):
+            info = {'name': product.name,
+                    "id": product.product_id,
+                    "category": product.category,
+                    "created_at": product.created_at,
+                    "price": product.price,
+                    "quantity": product.quantity}
+            if int(product.quantity) > 0:
+                print(*[f'{key}: {value}' for key, value in info.items()],
                       'You can buy this product.', sep='\n')
             else:
-                print(*[f'{key}: {value}' for key, value in product.items()],
+                print(*[f'{key}: {value}' for key, value in info.items()],
                       "You couldn't buy this product.", sep='\n')
 
 
-def make_order(id_quantity_list: str, st_connector, ord_connector):
-    id_quantity_list = [[item for item in id_quantity.split()]
-                        for id_quantity in id_quantity_list.split(',')]
-    storage = st_connector.get_storage_info()
-    goods_list = storage['Goods']
-    order = {}
+def make_order(id_quantity: str,
+               st_connector: 'StorageProto',
+               ord_connector: 'OrdersProto') -> list[str] | str:
+    id_quantity_list = [id_quant.split()
+                        for id_quant in id_quantity.split(',')]
+    goods_list = st_connector.get_storage_info()
+
+    order_goods = []
+    order_price = []
     for _id, quantity in id_quantity_list:
         if not _id.isdigit() or not quantity.isdigit():
             raise InvalidIdError('Product id and quantity '
@@ -110,126 +149,158 @@ def make_order(id_quantity_list: str, st_connector, ord_connector):
         elif int(_id) > len(goods_list):
             raise InvalidIdError('Incorrect product id.')
         for product in goods_list:
-            if product['id'] == int(_id):
-                if product['quantity'] >= int(quantity):
-                    order[f'product_id: {_id}'] = int(quantity)
-                    product['quantity'] -= int(quantity)
-                    order['order price'] = (order.get('order price', 0)
-                                            + float(product['price'])
-                                            * int(quantity))
+            if product.product_id == int(_id):
+                if product.quantity >= int(quantity):
+                    order_goods.append({"product_id": int(_id),
+                                        "quantity": int(quantity)})
+                    product.quantity -= int(quantity)
+                    order_price.append(float(product.price) * int(quantity))
                     continue
                 else:
                     return "it is not possible to deliver such order."
     if ord_connector.read_file():
-        order['order id'] = len(ord_connector.get_order_info()) + 1
+        order_id = len(ord_connector.get_order_info()) + 1
     else:
-        order['order id'] = 1
-    order['created_at'] = str(date.today())
-    storage['Goods'] = goods_list
-    st_connector.record_with_new_info(storage)
+        order_id = 1
+
+    order = OrderDTO(order_id=order_id,
+                     goods=order_goods,
+                     order_price=sum(order_price),
+                     created_at=str(date.today()))
+
+    st_connector.record_with_new_info(goods_list)
     ord_connector.record_order(order)
-    result = {'total order price': order['order price']}
-    for key in order:
-        if 'product_id' in key:
-            result[key] = order[key]
-    return [f'{key}: {value}' for key, value in result.items()]
+    return [f"order id: {order.order_id}", f"List of goods: {order.goods}",
+            f"Order price: {order.order_price}",
+            f"Created date: {order.created_at}"]
 
 
-def get_categories_statistic(min_date, max_date, ct_connector,
-                             ord_connector, st_connector):
-    categories = ct_connector.get_all_categories().keys()
+def get_categories_statistic(min_date: str,
+                             max_date: str,
+                             ct_connector: 'CategoriesProto',
+                             ord_connector: 'OrdersProto',
+                             st_connector: 'StorageProto') \
+        -> 'CategoryStatisticDTO':
+    categories = ct_connector.get_all_categories()
     sold_goods = get_sold_items(min_date, max_date,
                                 ord_connector, st_connector)
-    quantity = {}
-    price = {}
+    quantity: dict[str, int] = {}
+    price: dict[str, float] = {}
     for category in categories:
-        for key in sold_goods.keys():
-            if category == key[1]:
-                quantity[category] = (sold_goods[key]
-                                      + quantity.get(category, 0))
-                price[category] = (sold_goods[key] * float(key[2])
-                                   + price.get(category, 0))
+        for key in sold_goods:
+            if category.category == key[1]:
+                quantity[key[1]] = (sold_goods[key]
+                                    + quantity.get(key[1], 0))
+                price[key[1]] = (sold_goods[key] * float(key[2])
+                                 + price.get(key[1], 0))
             else:
-                quantity[category] = quantity.get(category, 0)
-                price[category] = price.get(category, 0)
-    return {"Category": categories,
-            "Quantity": quantity.values(),
-            "Total revenues": price.values()}
+                quantity[category.category] = \
+                    quantity.get(category.category, 0)
+                price[category.category] = price.get(category.category, 0)
+    return CategoryStatisticDTO(category=list(quantity.keys()),
+                                quantity=list(quantity.values()),
+                                total_revenues=list(price.values()))
 
 
-def get_sold_items(min_date, max_date, ord_connector, st_connector):
+def get_sold_items(min_date: str,
+                   max_date: str,
+                   ord_connector: 'OrdersProto',
+                   st_connector: 'StorageProto') -> dict[tuple[str,
+                                                               str,
+                                                               str], int]:
     orders = ord_connector.get_order_info()
     if min_date.strip():
         orders = list(filter(lambda x:
-                             date.fromisoformat(x['created_at'])
+                             date.fromisoformat(x.created_at)
                              >= date.fromisoformat(min_date), orders))
     if max_date.strip():
         orders = list(filter(lambda x:
-                             date.fromisoformat(x['created_at'])
+                             date.fromisoformat(x.created_at)
                              <= date.fromisoformat(max_date), orders))
-    goods = {}
+    goods: dict[tuple[str, str, str], int] = {}
     for (id_, name,
-         category, price) in map(lambda x: [x['id'], x['name'],
-                                            x['category'], x['price']],
-                                 st_connector.get_storage_info()['Goods']):
+         category, price) in map(lambda x: [x.id, x.name,
+                                            x.category, x.price],
+                                 st_connector.get_storage_info()):
         for order in orders:
-            if f'product_id: {id_}' in order.keys():
-                goods[(name,
-                       category, price)] = (goods.get((name,
-                                                       category, price), 0)
-                                            + order[f'product_id: {id_}'])
+            for item in order.goods:
+                if id_ == item["product_id"]:
+                    goods[(str(name),
+                           str(category),
+                           str(price))] = (goods.get((str(name),
+                                                      str(category),
+                                                      str(price)), 0)
+                                           + item["quantity"])
     return goods
 
 
-def get_sorted_orders_list(min_date, max_date, ord_connector):
-    orders = ord_connector.get_order_info()
-    if min_date.strip():
-        orders = filter(lambda x:
-                        date.fromisoformat(x['created_at'])
-                        >= date.fromisoformat(min_date), orders)
-    if max_date.strip():
-        orders = filter(lambda x:
-                        date.fromisoformat(x['created_at'])
-                        <= date.fromisoformat(max_date), orders)
-    return sorted(orders, key=lambda x: x['order price'], reverse=True)
-
-
-def get_common_info(min_date, max_date, ord_connector, st_connector):
+def get_sorted_orders_list(min_date: str,
+                           max_date: str,
+                           ord_connector: 'OrdersProto') -> 'OrderInfo':
     orders = ord_connector.get_order_info()
     if min_date.strip():
         orders = list(filter(lambda x:
-                             date.fromisoformat(x['created_at'])
+                             date.fromisoformat(x.created_at)
                              >= date.fromisoformat(min_date), orders))
     if max_date.strip():
         orders = list(filter(lambda x:
-                             date.fromisoformat(x['created_at'])
+                             date.fromisoformat(x.created_at)
                              <= date.fromisoformat(max_date), orders))
-    total_revenues = sum(map(lambda x: x['order price'], orders))
+    return sorted(orders, key=lambda x: x.order_price, reverse=True)
+
+
+def get_common_info(min_date: str,
+                    max_date: str,
+                    ord_connector: 'OrdersProto',
+                    st_connector: 'StorageProto') -> 'CommonInfoDTO':
+    orders = ord_connector.get_order_info()
+    if min_date.strip():
+        orders = list(filter(lambda x:
+                             date.fromisoformat(x.created_at)
+                             >= date.fromisoformat(min_date), orders))
+    if max_date.strip():
+        orders = list(filter(lambda x:
+                             date.fromisoformat(x.created_at)
+                             <= date.fromisoformat(max_date), orders))
+    total_revenues = sum(map(lambda x: x.order_price, orders))
     total_amount = len(get_sold_items(min_date, max_date,
                                       ord_connector, st_connector))
     products = get_sold_items(min_date, max_date,
                               ord_connector, st_connector).items()
     most_popular_products = sorted(products, key=lambda x: x[1])
     most_popular_product = most_popular_products[-1][0][0]
-    most_popular_category = ''
-    for item in st_connector.get_storage_info()['Goods']:
-        if item['name'] == most_popular_product:
-            most_popular_category = item['category']
-    return {"Total revenues": total_revenues,
-            "Total amount": total_amount,
-            "The most popular category": most_popular_category,
-            "The most popular product": most_popular_product}
+    most_popular_category: str = ''
+    for item in st_connector.get_storage_info():
+        if item.name == most_popular_product:
+            most_popular_category = item.category
+    return CommonInfoDTO(total_revenues=total_revenues,
+                         total_amount=total_amount,
+                         popular_category=most_popular_category,
+                         popular_product=most_popular_product)
 
 
-def get_statistic(min_date, max_date, st_connector,
-                  ord_connector, ct_connector):
-    record_to_exel_sheets(get_categories_statistic(min_date, max_date,
-                                                   ct_connector,
-                                                   ord_connector,
-                                                   st_connector),
-                          get_sold_items(min_date, max_date,
-                                         ord_connector, st_connector),
-                          get_sorted_orders_list(min_date,
-                                                 max_date, ord_connector),
-                          get_common_info(min_date, max_date,
-                                          ord_connector, st_connector))
+def get_statistic(min_date: str,
+                  max_date: str,
+                  st_connector: 'StorageProto',
+                  ord_connector: 'OrdersProto',
+                  ct_connector: 'CategoriesProto') -> None:
+
+    info1 = get_categories_statistic(min_date,
+                                     max_date,
+                                     ct_connector,
+                                     ord_connector,
+                                     st_connector)
+
+    info2 = get_sold_items(min_date,
+                           max_date,
+                           ord_connector,
+                           st_connector)
+    info3 = get_sorted_orders_list(min_date,
+                                   max_date,
+                                   ord_connector)
+
+    info4 = get_common_info(min_date,
+                            max_date,
+                            ord_connector,
+                            st_connector)
+    record_to_exel_sheets(info1, info2, info3, info4)

@@ -14,6 +14,10 @@ from business_logic import (add_category,
                             get_statistic)
 from config import ST_FILE, CT_FILE, ORD_FILE, DB_TYPE
 from providers import provide_st, provide_ord, provide_ct
+from typing import Optional
+
+
+parameters: Optional[list[str]] | str
 
 while True:
     choice = input('Choose the action:\n'
@@ -49,10 +53,11 @@ while True:
     elif int(choice) == 2:
         category = input('Enter a category: ')
         try:
-            parameters = get_parameters(category,
-                                        provide_ct(DB_TYPE,
-                                                   CT_FILE))
-            result_info = {}
+            parameters = get_parameters(category, provide_ct(DB_TYPE,
+                                                             CT_FILE))
+            if not parameters:
+                raise ValueError("The category is not exist.")
+            result_info: dict[str, str] = {}
             for parameter in parameters:
                 value = input(f'Enter {parameter}: ')
                 result_info[parameter] = value
@@ -68,6 +73,9 @@ while True:
             print(err)
             continue
         except DigitError as err:
+            print(err)
+            continue
+        except ValueError as err:
             print(err)
             continue
 
