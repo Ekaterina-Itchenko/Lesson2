@@ -8078,17 +8078,5 @@
     "Price/Sales": 9.280896,
     "Price/Book": 18.09,
     "SEC Filings": "http://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=ZTS"
-  },
-  {
-    "Symbol": "YYY",
-    "Name": "Dasha",
-    "Sector": "Industrials",
-    "Price": 120.0
-  },
-  {
-    "Symbol": "ZZZ",
-    "Name": "Katerina",
-    "Sector": "Industrials",
-    "Price": 122.2
   }
 ]
