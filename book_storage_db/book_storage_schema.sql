@@ -72,6 +72,7 @@ CREATE TABLE baskets (
 CREATE TABLE baskets_books (
     basket_id INTEGER,
     book_id INTEGER,
+    quantity INTEGER NOT NULL,
     PRIMARY KEY (basket_id, book_id),
     FOREIGN KEY (basket_id) REFERENCES baskets(basket_id),
     FOREIGN KEY (book_id) REFERENCES books(book_id)

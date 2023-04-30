@@ -19,11 +19,11 @@ from .providers import (PhoneProvider,
                         RandomIdProvider,
                         BasketStatusProvider,
                         CvcProvider,
-                        ExpiryDateProvider)
+                        ExpiryDateProvider,
+                        AvailableIdProvider)
 
 
 __all__ = [
-    'FakeFactory',
     'PhoneProvider',
     'NameProvider',
     'EmailProvider',
@@ -45,5 +45,6 @@ __all__ = [
     'RandomIdProvider',
     'BasketStatusProvider',
     'CvcProvider',
-    'ExpiryDateProvider'
+    'ExpiryDateProvider',
+    'AvailableIdProvider'
 ]
