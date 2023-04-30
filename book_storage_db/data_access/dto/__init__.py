@@ -15,6 +15,10 @@ from .baskets_books import BasketsBooksDTO
 from .users_roles import UsersRolesDTO
 from .users_addresses import UsersAddressesDTO
 from .users_bankcards import UsersBankcardsDTO
+from .author_info import AuthorInfoDTO
+from .user_info import UsersInfoDTO
+from .book_info import BookInfoDTO
+from .transaction_info import TransactionInfoDTO
 
 
 __all__ = [
@@ -34,5 +38,9 @@ __all__ = [
     'BasketsBooksDTO',
     'UsersRolesDTO',
     'UsersAddressesDTO',
-    'UsersBankcardsDTO'
+    'UsersBankcardsDTO',
+    'AuthorInfoDTO',
+    'UsersInfoDTO',
+    'BookInfoDTO',
+    'TransactionInfoDTO'
 ]
