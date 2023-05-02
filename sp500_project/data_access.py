@@ -1,6 +1,6 @@
 import csv
 import json
-from interfaces import DbProto
+import sqlite3
 from typing import TypeAlias
 from DTO import CompanyDTO
 
@@ -8,7 +8,7 @@ from DTO import CompanyDTO
 CompaniesInfo: TypeAlias = list[CompanyDTO]
 
 
-class Sp500Csv(DbProto):
+class Sp500Csv:
     def __init__(self, file_name: str) -> None:
         self.file_name = file_name
 
@@ -46,7 +46,7 @@ class Sp500Csv(DbProto):
             writer.writerows(new_info)
 
 
-class Sp500Json(DbProto):
+class Sp500Json:
     def __init__(self, file_name: str) -> None:
         self.file_name = file_name
 
@@ -80,3 +80,41 @@ class Sp500Json(DbProto):
                         'Price': company.price})
         with open(self.file_name, 'w', encoding='utf8') as file:
             json.dump(res, file, indent=2)
+
+
+class Sp500Sqlite:
+    def __init__(self, file_name: str) -> None:
+        self.file_name = file_name
+        self._connector = sqlite3.connect(file_name)
+        self._cursor = self._connector.cursor()
+
+    def get_file_information(self) -> CompaniesInfo:
+        all_companies = self._cursor.execute(
+            'SELECT symbol, name, sector, price FROM companies;'
+        ).fetchall()
+        res = []
+        for company in all_companies:
+            res.append(CompanyDTO(symbol=company[0],
+                                  name=company[1],
+                                  sector=company[2],
+                                  price=company[3]))
+        return res
+
+    def record_new_line(self, new_line: CompanyDTO) -> None:
+        self._cursor.execute(
+            'INSERT INTO companies (symbol, name, sector, price) '
+            'VALUES (?, ?, ?, ?);',
+            (new_line.symbol, new_line.name, new_line.sector, new_line.price)
+        )
+        self._connector.commit()
+
+    def record_new_information(self, new_information: CompaniesInfo) -> None:
+        self._cursor.execute('DELETE FROM companies;')
+        self._connector.commit()
+        for company in new_information:
+            self._cursor.execute(
+                'INSERT INTO companies (symbol, name, sector, price) '
+                'VALUES (?, ?, ?, ?);',
+                (company.symbol, company.name, company.sector, company.price)
+            )
+            self._connector.commit()
