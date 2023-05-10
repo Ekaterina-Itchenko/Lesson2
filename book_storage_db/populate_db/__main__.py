@@ -1,7 +1,11 @@
 import sys
 import os
-from data_access import SqliteConnector
-from data_access.dao import (
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(SCRIPT_DIR))
+
+from data_access import SqliteConnector # noqa E402
+from data_access.dao import ( # noqa E402
     AuthorsDAO,
     GenresDAO,
     RolesDAO,
@@ -19,8 +23,8 @@ from data_access.dao import (
     BooksAuthorsDAO,
     BooksGenresDAO,
     PermissionsRolesDAO
-)
-from factories import (
+) # noqa E402
+from factories import ( # noqa E402
     AuthorsFactory,
     GenresFactory,
     BankcardsFactory,
@@ -38,9 +42,8 @@ from factories import (
     UsersRolesFactory,
     UsersAddressesFactory,
     PermissionsRolesFactory
-
-)
-from fake_lib import (
+) # noqa E402
+from fake_lib import ( # noqa E402
     PhoneProvider,
     NameProvider,
     EmailProvider,
@@ -64,12 +67,9 @@ from fake_lib import (
     CvcProvider,
     ExpiryDateProvider,
     AvailableIdProvider
+) # noqa E402
+from populate_command import PopulateTable # noqa E402
 
-)
-from populate_command import PopulateTable
-
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.dirname(SCRIPT_DIR))
 
 if __name__ == '__main__':
 

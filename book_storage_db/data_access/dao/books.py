@@ -69,6 +69,9 @@ class BooksDAO(BaseDAO):
 
     def delete_book(self, book_id: int) -> None:
         self._db_connector.cursor.execute(
+            'PRAGMA foreign_keys = ON;'
+        )
+        self._db_connector.cursor.execute(
             'DELETE FROM books WHERE book_id = (?);', (book_id, )
         )
         self._db_connector.connection.commit()

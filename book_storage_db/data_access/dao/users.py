@@ -56,6 +56,9 @@ class UsersDAO(BaseDAO):
 
     def delete_user(self, user_id: int) -> None:
         self._db_connector.cursor.execute(
+            'PRAGMA foreign_keys = ON;'
+        )
+        self._db_connector.cursor.execute(
             'DELETE FROM users WHERE user_id = (?);', (user_id, )
         )
         self._db_connector.connection.commit()
