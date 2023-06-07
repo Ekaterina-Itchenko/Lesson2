@@ -12,3 +12,4 @@ Faker==17.0.0
 mypy==1.1.1
 requests==2.31.0
 prettytable==3.7.0
+dacite==1.8.1

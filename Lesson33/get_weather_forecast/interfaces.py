@@ -1,13 +1,9 @@
+from __future__ import annotations
 from typing import Protocol, TYPE_CHECKING
 if TYPE_CHECKING:
     from DTO import WeatherConditionsDTO
 
 
-class ConnectorProtocol(Protocol):
-    city: str
-    key: str
-    url: str
-    params: dict
-
-    def get_weather(self) -> 'WeatherConditionsDTO':
+class AdapterProtocol(Protocol):
+    def get_weather(self, city: str) -> WeatherConditionsDTO:
         pass
