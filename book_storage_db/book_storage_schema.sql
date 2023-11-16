@@ -32,15 +32,15 @@ CREATE TABLE books_genres (
     book_id INTEGER,
     genre_id INTEGER,
     PRIMARY KEY (book_id, genre_id),
-    FOREIGN KEY (book_id) REFERENCES books(book_id),
-    FOREIGN KEY (genre_id) REFERENCES genres(genre_id)
+    FOREIGN KEY (book_id) REFERENCES books(book_id) ON DELETE CASCADE,
+    FOREIGN KEY (genre_id) REFERENCES genres(genre_id) ON DELETE CASCADE
 );
 CREATE TABLE books_authors (
     book_id INTEGER,
     author_id INTEGER,
     PRIMARY KEY (book_id, author_id),
-    FOREIGN KEY (book_id) REFERENCES books(book_id),
-    FOREIGN KEY (author_id) REFERENCES authors(author_id)
+    FOREIGN KEY (book_id) REFERENCES books(book_id) ON DELETE CASCADE,
+    FOREIGN KEY (author_id) REFERENCES authors(author_id) ON DELETE CASCADE
 );
 CREATE TABLE permissions (
     permission_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -58,8 +58,10 @@ CREATE TABLE permissions_roles (
     permission_id INTEGER,
     role_id INTEGER,
     PRIMARY KEY (permission_id, role_id),
-    FOREIGN KEY (permission_id) REFERENCES permissions(permission_id),
-    FOREIGN KEY (role_id) REFERENCES roles(role_id)
+    FOREIGN KEY (permission_id) REFERENCES permissions(
+        permission_id
+        ) ON DELETE CASCADE,
+    FOREIGN KEY (role_id) REFERENCES roles(role_id) ON DELETE CASCADE
 );
 CREATE TABLE baskets (
     basket_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -67,14 +69,15 @@ CREATE TABLE baskets (
     status TEXT NOT NULL,
     created_at NUMERIC DEFAULT CURRENT_TIMESTAMP,
     updated_at NUMERIC DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 CREATE TABLE baskets_books (
     basket_id INTEGER,
     book_id INTEGER,
+    quantity INTEGER NOT NULL,
     PRIMARY KEY (basket_id, book_id),
-    FOREIGN KEY (basket_id) REFERENCES baskets(basket_id),
-    FOREIGN KEY (book_id) REFERENCES books(book_id)
+    FOREIGN KEY (basket_id) REFERENCES baskets(basket_id) ON DELETE CASCADE,
+    FOREIGN KEY (book_id) REFERENCES books(book_id) ON DELETE CASCADE
 );
 CREATE TABLE users (
     user_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -92,8 +95,8 @@ CREATE TABLE users_roles (
     user_id INTEGER,
     role_id INTEGER,
     PRIMARY KEY (user_id, role_id),
-    FOREIGN KEY (user_id) REFERENCES users(user_id),
-    FOREIGN KEY (role_id) REFERENCES roles(role_id)
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (role_id) REFERENCES roles(role_id) ON DELETE CASCADE
 );
 CREATE TABLE addresses (
     address_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -109,8 +112,8 @@ CREATE TABLE users_addresses (
     user_id INTEGER,
     address_id INTEGER,
     PRIMARY KEY (user_id, address_id),
-    FOREIGN KEY (user_id) REFERENCES users(user_id),
-    FOREIGN KEY (address_id) REFERENCES addresses(address_id)
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (address_id) REFERENCES addresses(address_id) ON DELETE CASCADE
 );
 CREATE TABLE bankcards (
     bankcard_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -126,8 +129,8 @@ CREATE TABLE users_bankcards (
     user_id INTEGER,
     bankcard_id INTEGER,
     PRIMARY KEY (user_id, bankcard_id),
-    FOREIGN KEY (user_id) REFERENCES users(user_id),
-    FOREIGN KEY (bankcard_id) REFERENCES bankcards(bankcard_id)
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (bankcard_id) REFERENCES bankcards(bankcard_id) ON DELETE CASCADE
 );
 CREATE TABLE transactions (
     transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,

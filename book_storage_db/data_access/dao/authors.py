@@ -1,8 +1,7 @@
 from __future__ import annotations
 from .base_dao import BaseDAO
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from ..dto import AuthorsDTO
+from ..dto import AuthorsDTO, AuthorInfoDTO
+from typing import Any
 
 
 class AuthorsDAO(BaseDAO):
@@ -24,3 +23,23 @@ class AuthorsDAO(BaseDAO):
             'SELECT author_id FROM authors;'
         )
         return res.fetchall()
+
+    def get_list_of_all(self) -> list[tuple[Any]]:
+        res = self._db_connector.cursor.execute(
+            'SELECT author_id, first_name, last_name FROM authors '
+            'ORDER BY first_name, last_name;'
+        )
+        return res.fetchall()
+
+    def get_author_info(self, author_id: int) -> AuthorInfoDTO:
+        author_info = self._db_connector.cursor.execute(
+            'SELECT author_id, first_name, last_name, birth_date, '
+            'date_of_death, information FROM authors WHERE '
+            'author_id = (?);', (author_id, )
+        ).fetchall()
+        return AuthorInfoDTO(author_id=author_info[0][0],
+                             first_name=author_info[0][1],
+                             last_name=author_info[0][2],
+                             birth_date=author_info[0][3],
+                             death_date=author_info[0][4],
+                             information=author_info[0][5])

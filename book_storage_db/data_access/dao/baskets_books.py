@@ -8,10 +8,12 @@ if TYPE_CHECKING:
 class BasketsBooksDAO(BaseDAO):
     def create(self, data: BasketsBooksDTO) -> None:
         self._db_connector.cursor.execute(
-            'INSERT INTO baskets_books (basket_id, book_id) VALUES (?, ?);',
+            'INSERT INTO baskets_books (basket_id, book_id, quantity) '
+            'VALUES (?, ?, ?);',
             (
                 data.basket_id,
-                data.book_id
+                data.book_id,
+                data.quantity
             )
         )
         self._db_connector.connection.commit()

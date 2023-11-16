@@ -25,3 +25,11 @@ class AddressesDAO(BaseDAO):
             'SELECT address_id FROM addresses;'
         )
         return res.fetchall()
+
+    def get_available_id_list_for_transact(self) -> list[tuple[int, int]]:
+        res = self._db_connector.cursor.execute(
+            'SELECT b.basket_id, ua.address_id  FROM baskets b '
+            'LEFT JOIN users_addresses ua ON ua.user_id  = b.user_id '
+            'ORDER  BY b.basket_id; '
+        ).fetchall()
+        return res

@@ -201,6 +201,16 @@ class RandomIdProvider:
         return random_value
 
 
+class AvailableIdProvider:
+    def __init__(self, id_list: list[Any]) -> None:
+        self._id_list = id_list
+
+    def __call__(self, basket_id: int) -> int:
+        id_list = [item[1] for item in self._id_list if item[0] == basket_id]
+        random_value = choice(id_list)
+        return random_value
+
+
 class BasketStatusProvider:
     def __call__(self) -> str:
         statuses = ['Paid', 'Archived', 'Pending', 'Active']

@@ -23,3 +23,11 @@ class BankcardsDAO(BaseDAO):
             'SELECT bankcard_id FROM bankcards;'
         )
         return res.fetchall()
+
+    def get_available_id_list_for_transact(self) -> list[tuple[int, int]]:
+        res = self._db_connector.cursor.execute(
+            'SELECT b.basket_id , ub.bankcard_id FROM baskets b '
+            'LEFT JOIN users_bankcards ub ON ub.user_id = b.user_id '
+            'ORDER BY b.basket_id;'
+        ).fetchall()
+        return res
