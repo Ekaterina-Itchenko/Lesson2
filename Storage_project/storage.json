@@ -1,0 +1,40 @@
+[
+  {
+    "add_param": {
+      "color": "black"
+    },
+    "category": "Smartphone",
+    "created_at": "2023-04-04",
+    "id": 1,
+    "name": "Iphone 14",
+    "price": "2000",
+    "quantity": 2,
+    "updated_at": "2023-04-04"
+  },
+  {
+    "add_param": {
+      "color": "white"
+    },
+    "category": "Smartphone",
+    "created_at": "2023-04-04",
+    "id": 2,
+    "name": "GalaxyS23",
+    "price": "1500",
+    "quantity": 3,
+    "updated_at": "2023-04-04"
+  },
+  {
+    "add_param": {
+      "brand": "Volvo",
+      "color": "red",
+      "engine capacity": "4.4"
+    },
+    "category": "car",
+    "created_at": "2023-04-04",
+    "id": 3,
+    "name": "XC90",
+    "price": "65000",
+    "quantity": 4,
+    "updated_at": "2023-04-04"
+  }
+]

@@ -1,0 +1,6 @@
+class InvalidChoice(Exception):
+    ...
+
+
+class NotDigitError(Exception):
+    ...

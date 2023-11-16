@@ -1,0 +1,20 @@
+[
+  {
+    "category": "Smartphone",
+    "parameters": [
+      "name",
+      "price",
+      "color"
+    ]
+  },
+  {
+    "category": "car",
+    "parameters": [
+      "name",
+      "price",
+      "brand",
+      "engine capacity",
+      "color"
+    ]
+  }
+]
