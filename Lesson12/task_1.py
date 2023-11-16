@@ -16,8 +16,8 @@ class Vector:
     def __eq__(self, other):
         return self.length() == other.length()
 
-    def __ne__(self, other):
-        return self.length() != other.length()
+    # def __ne__(self, other):
+    #     return self.length() != other.length()
 
     def __le__(self, other):
         return self.length() <= other.length()
@@ -28,5 +28,5 @@ class Vector:
 
 vector1 = Vector((1, 1), (1, 10))
 
-vector2 = Vector((1, 5), (1, 1))
-print(vector1 > vector2)
+vector2 = Vector((1, 1), (1, 1))
+print(vector1 != vector2)

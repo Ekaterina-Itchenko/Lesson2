@@ -62,7 +62,7 @@ class Library():
             return err
 
 
-book1 = Book("1984", "Some description", 500, "Orwell", 10)
+book1 = Book("1984", "Some description", 1500, "Orwell", 10)
 book2 = Book("Learn Python",
              "This book will teach you how to learn python",
              1000,
@@ -80,5 +80,5 @@ l1.remove_book(book2)
 print(l1.find_the_biggest_book())
 print(book1.contains_word('ggg'))
 print(book2.to_dict())
-print(book1 > book2)
+print(book1 <= book2)
 print(book1 != book2)

@@ -12,3 +12,6 @@ Faker==17.0.0
 mypy==1.1.1
 openpyxl-stubs==0.1.25
 types-openpyxl==3.1.0.3
+requests==2.31.0
+prettytable==3.7.0
+dacite==1.8.1
