@@ -20,3 +20,15 @@ class WrongPriceError(Exception):
 
 class WrongGenerationNumberError(Exception):
     pass
+
+
+class NoSuchSymbolError(Exception):
+    pass
+
+
+class WrongSectorError(Exception):
+    pass
+
+
+class CompanyAlreadyExistsError(Exception):
+    pass
